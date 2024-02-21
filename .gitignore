@@ -31,5 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
-loan-upload-500000.xlsx
-loan-upload-1000000.xlsx
+
+#large files
+src/main/resources/loan-upload-500000.xlsx
+src/main/resources/loan-upload-1000000.xlsx

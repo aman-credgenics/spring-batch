@@ -25,9 +25,8 @@ import java.util.Date;
 
 //@EnableBatchProcessing(tablePrefix = "SPRING.JOB.LOAN.UPLOAD")
 @Slf4j
-@EnableJpaRepositories
-@EnableBatchProcessing
 @Configuration
+@EnableJpaRepositories
 public class UploadConfig {
 
 
@@ -45,7 +44,7 @@ public class UploadConfig {
     public ItemReader<JSONObject> excelReader() {
         PoiItemReader<JSONObject> reader = new PoiItemReader<>();
         reader.setLinesToSkip(1); // HEADERS
-        reader.setResource(new ClassPathResource("loan-upload-100000.xlsx"));
+        reader.setResource(new ClassPathResource("loan-upload-100.xlsx"));
         reader.setRowMapper(new ExcelMapper());
         return reader;
     }
