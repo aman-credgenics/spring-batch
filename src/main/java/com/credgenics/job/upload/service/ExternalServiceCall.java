@@ -1,7 +1,6 @@
 package com.credgenics.job.upload.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
@@ -10,8 +9,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.json.JSONObject;
-import java.util.ArrayList;
+
+import java.net.URI;
 import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -74,39 +75,30 @@ public class ExternalServiceCall {
         }
     }
 
-    public HashMap<String, Object> verifyLoan(String loanId, String companyId, HashMap<String, Object> userInfo,
-                                              HashMap<String, Object> companyInfo) {
+    public HashMap<String, Object> validateRow(String companyId, JSONObject rowData) {
         String uri = "";
         try {
             long startTime = System.currentTimeMillis();
             uri =
-                    recoveryServiceBaseURL + "/loan/{loanId}?fields={fields}&company_id={companyId}".replace(
-                            "{loanId}", loanId).replace("{fields}", "loan").replace("{companyId}", companyId);
+                    recoveryServiceBaseURL + "/internal/validate/loan?&company_id={companyId}".replace("{companyId}", companyId);
 
             HttpHeaders headers = new HttpHeaders();
-
-            JSONObject userInfoMap = new JSONObject(userInfo);
-            JSONObject companyInfoMap = new JSONObject(companyInfo);
-            headers.add("x-cg-user", userInfoMap.toString());
-            headers.add("x-cg-company", companyInfoMap.toString());
-
-            HttpEntity bodyAndHeaders = new HttpEntity<>(headers);
-            log.info(uri);
-
-            ResponseEntity<HashMap> response =
-                    restTemplate.exchange(uri, HttpMethod.GET, bodyAndHeaders, HashMap.class);
-
+            headers.add("authenticationtoken", authToken);
+            headers.add("Content-Type", "application/json");
+            rowData.put("company_id",companyId);
+            HttpEntity<Map<String,Object>> bodyAndHeaders = new HttpEntity<>(rowData.toMap(), headers);
+            ResponseEntity<HashMap> response = restTemplate.exchange(uri, HttpMethod.POST, bodyAndHeaders, HashMap.class);
             log.info(response.getBody().get("output").toString());
 
             HashMap<String, Object> responseBody = (HashMap<String, Object>) ((HashMap<String, Object>) response.getBody()).get("output");
             long endTime = System.currentTimeMillis();
-            log.info("Recovery took time : {} milliseconds, companyId : {}, loanId : {}", endTime - startTime, companyId, loanId);
+            log.info("Recovery took time : {} milliseconds, companyId : {}", endTime - startTime, companyId);
             return responseBody;
         } catch (HttpClientErrorException e) {
-            log.error("Error fetching loan details. URI: {}, Response Body: {}", uri, e.getResponseBodyAsString(), e);
+            log.error("Error validating row. URI: {}, Response Body: {}", uri, e.getResponseBodyAsString(), e);
             throw e;
         } catch (Exception e) {
-            log.error("Error fetching loan details. URI: {}", uri, e);
+            log.error("Error validating row. URI: {}", uri, e);
             throw e;
         }
     }

@@ -1,11 +1,12 @@
 package com.credgenics.job.upload.config;
 
 import com.credgenics.job.upload.listener.UploadListener;
+import com.credgenics.job.upload.service.ExternalServiceCall;
 import com.credgenics.job.upload.step.QueryWriter;
 import com.credgenics.job.upload.step.RowProcessor;
 import com.credgenics.job.upload.utils.ExcelMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.json.simple.JSONObject;
+import org.json.JSONObject;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
@@ -23,6 +24,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.Date;
@@ -38,13 +40,9 @@ public class UploadConfig {
     @Value("${server.job.file-name}")
     String fileName;
 
-
-    @Autowired
-    JobRepository jobRepository;
-
     @Bean
-    public RowProcessor rowProcessor() {
-        return new RowProcessor();
+    public RowProcessor rowProcessor(JdbcTemplate jdbcTemplate, ExternalServiceCall session) {
+        return new RowProcessor(jdbcTemplate, session);
     }
 
     @Bean
@@ -80,18 +78,4 @@ public class UploadConfig {
                 .build();
     }
 
-    @Bean
-    public  JobParameters jobParameters(){
-        return new JobParametersBuilder()
-                .addString("fileName", fileName)
-                .toJobParameters();
-    }
-
-    @Bean
-    public JobLauncher jobLauncherr() throws Exception{
-        TaskExecutorJobLauncher jobLauncher = new TaskExecutorJobLauncher();
-        jobLauncher.setJobRepository(jobRepository);
-        jobLauncher.afterPropertiesSet();
-        return jobLauncher;
-    }
 }

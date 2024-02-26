@@ -1,8 +1,13 @@
 package com.credgenics.job.upload.step;
 
+import com.credgenics.job.upload.service.ExternalServiceCall;
 import lombok.extern.slf4j.Slf4j;
-import org.json.simple.JSONObject;
+import org.json.JSONObject;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jdbc.core.JdbcTemplate;
+
+import java.util.HashMap;
 
 @Slf4j
 public class RowProcessor implements ItemProcessor<JSONObject, JSONObject> {
@@ -24,9 +29,22 @@ public class RowProcessor implements ItemProcessor<JSONObject, JSONObject> {
      * processing of the provided item should not continue.
      * @throws Exception thrown if exception occurs during processing.
      */
+    private final JdbcTemplate jdbcTemplate;
+    private final ExternalServiceCall session;
+
+    @Value("${server.job.companyId}")
+    String companyId;
+
+    public RowProcessor(JdbcTemplate jdbcTemplate, ExternalServiceCall session) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.session = session;
+    }
+
     @Override
     public JSONObject process(JSONObject item) throws Exception {
-        log.info("Row process" + item.toString());
+
+        HashMap<String, Object> validatedLoan = session.validateRow("e0bb14b2-4ce1-443f-bbe4-c2854850c6e5", item);
+        log.info("Row process" + validatedLoan.toString());
         return item;
     }
 }

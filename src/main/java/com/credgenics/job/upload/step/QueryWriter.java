@@ -1,7 +1,7 @@
 package com.credgenics.job.upload.step;
 
 import lombok.extern.slf4j.Slf4j;
-import org.json.simple.JSONObject;
+import org.json.JSONObject;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 
