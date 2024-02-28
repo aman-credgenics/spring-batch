@@ -5,9 +5,9 @@ import jakarta.persistence.*;
 import java.sql.Timestamp;
 import java.util.Objects;
 
-//@Entity
-//@jakarta.persistence.Table(name = "lending_loan_details", schema = "public", catalog = "local")
-//@IdClass(com.credgenics.job.upload.entity.RecoveryLendingLoanDetailsEntityPK.class)
+@Entity
+@jakarta.persistence.Table(name = "lending_loan_details", schema = "public", catalog = "local")
+@IdClass(com.credgenics.job.upload.entity.RecoveryLendingLoanDetailsEntityPK.class)
 public class RecoveryLendingLoanDetailsEntity {
     @Basic
     @jakarta.persistence.Column(name = "id", nullable = false)
